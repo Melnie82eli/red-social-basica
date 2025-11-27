@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Social</title>
+    <link rel="stylesheet" href="estilos.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="showFeed()">RedSocial</a>
+            <nav>
+                <a onclick="showFeed()" id="nav-home" class="active">Inicio</a>
+                <a onclick="showProfile()" id="nav-profile">Mi Perfil</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Create Post Section -->
+        <div class="create-post">
+            <form id="post-form">
+                <textarea id="post-content" placeholder="¿Qué estás pensando?"></textarea>
+                <!-- Image Preview Container -->
+                <div id="image-preview-container" style="display: none; margin-bottom: 10px;">
+                    <img id="image-preview" src="" alt="Previsualización"
+                        style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                    <button type="button" id="remove-image"
+                        style="background: none; border: none; color: red; cursor: pointer; margin-left: 10px;">❌
+                        Quitar</button>
+                </div>
+                <div class="create-post-actions">
+                    <div class="file-input-wrapper">
+                        <button type="button" class="btn btn-secondary">📷 Foto</button>
+                        <input type="file" id="post-image" accept="image/*">
+                    </div>
+                    <span id="file-name" style="font-size: 0.8rem; color: #666; margin-left: 10px;"></span>
+                    <button type="submit" class="btn">Publicar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Feed Section -->
+        <div id="feed-container">
+            <!-- Posts will be injected here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
