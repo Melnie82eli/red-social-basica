@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Inicio exitoso');
+                        window.location.href = 'indexPubli.html';
                     } else {
                         alert('Error: ' + data.message);
                     }
