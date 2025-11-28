@@ -137,7 +137,10 @@ function createPostElement(post) {
     div.className = 'post';
 
     const deleteBtn = post.es_mio
-        ? `<button class="action-btn delete-btn" onclick="deletePost(${post.id})">🗑️ Eliminar</button>`
+        ? `
+            <button class="action-btn" onclick="editPost(${post.id}, '${post.contenido.replace(/'/g, "\\'")}')">✏️ Editar</button>
+            <button class="action-btn delete-btn" onclick="deletePost(${post.id})">🗑️ Eliminar</button>
+          `
         : '';
 
     const imageHtml = post.imagen
@@ -164,9 +167,11 @@ function createPostElement(post) {
                 <h3>${post.usuario_nombre}</h3>
                 <span class="post-time">${timeAgo(post.fecha_publicacion)}</span>
             </div>
-            ${deleteBtn}
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                ${deleteBtn}
+            </div>
         </div>
-        <div class="post-content">
+        <div class="post-content" id="post-content-${post.id}">
             ${post.contenido}
         </div>
         ${imageHtml}
@@ -184,6 +189,44 @@ function createPostElement(post) {
         </div>
     `;
     return div;
+}
+
+function editPost(id, currentContent) {
+    const contentDiv = document.getElementById(`post-content-${id}`);
+    const originalHtml = contentDiv.innerHTML;
+
+    contentDiv.innerHTML = `
+        <textarea id="edit-textarea-${id}" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">${currentContent}</textarea>
+        <div style="margin-top: 5px; text-align: right;">
+            <button class="btn btn-secondary" onclick="cancelEdit(${id}, '${currentContent.replace(/'/g, "\\'")}')" style="padding: 4px 8px; font-size: 0.8rem;">Cancelar</button>
+            <button class="btn" onclick="saveEdit(${id})" style="padding: 4px 8px; font-size: 0.8rem;">Guardar</button>
+        </div>
+    `;
+}
+
+function cancelEdit(id, originalContent) {
+    const contentDiv = document.getElementById(`post-content-${id}`);
+    contentDiv.innerHTML = originalContent;
+}
+
+async function saveEdit(id) {
+    const newContent = document.getElementById(`edit-textarea-${id}`).value;
+
+    try {
+        const response = await fetch(`${API_URL}?action=edit_post`, {
+            method: 'POST',
+            body: JSON.stringify({ id: id, contenido: newContent }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+        if (result.success) {
+            loadPosts();
+        } else {
+            alert('Error al editar: ' + (result.error || 'Desconocido'));
+        }
+    } catch (error) {
+        console.error('Error editing post:', error);
+    }
 }
 
 function toggleComments(postId) {
