@@ -76,6 +76,19 @@ try {
             echo json_encode(['success' => false, 'error' => 'Contenido vacío']);
         }
 
+    } elseif ($action === 'edit_post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $post_id = $data['id'] ?? 0;
+        $contenido = $data['contenido'] ?? '';
+
+        if ($post_id && $contenido) {
+            $stmt = $pdo->prepare("UPDATE publicaciones SET contenido = ? WHERE id = ? AND usuario_id = ?");
+            $stmt->execute([$contenido, $post_id, $current_user_id]);
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
+        }
+
     } elseif ($action === 'delete_post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         $post_id = $data['id'] ?? 0;
