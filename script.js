@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPosts();
 
 
-    
+
     // Setup image preview
     const imageInput = document.getElementById('post-image');
     if (imageInput) {
@@ -229,9 +229,13 @@ function createPostElement(post) {
         });
     }
 
+    const avatarSrc = post.usuario_imagen
+        ? post.usuario_imagen
+        : `https://ui-avatars.com/api/?name=${post.usuario_nombre}&background=random`;
+
     div.innerHTML = `
         <div class="post-header">
-            <img src="https://ui-avatars.com/api/?name=${post.usuario_nombre}&background=random" class="avatar">
+            <img src="${avatarSrc}" class="avatar">
             <div class="post-info">
                 <h3>${post.usuario_nombre}</h3>
                 <span class="post-time">${timeAgo(post.fecha_publicacion)}</span>
