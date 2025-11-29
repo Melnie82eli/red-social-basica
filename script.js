@@ -1,5 +1,89 @@
+const API_URL = 'api.php';
+let currentView = 'all';
+
 document.addEventListener('DOMContentLoaded', () => {
     loadUserProfile();
+    loadPosts();
+
+    // Setup image preview
+    const imageInput = document.getElementById('post-image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview-container').style.display = 'block';
+                    document.getElementById('file-name').textContent = file.name;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Setup remove image button
+    const removeImageBtn = document.getElementById('remove-image');
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function () {
+            document.getElementById('post-image').value = '';
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('file-name').textContent = '';
+        });
+    }
+
+    // Setup post form submission
+    const postForm = document.getElementById('post-form');
+    if (postForm) {
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = document.getElementById('post-content').value;
+            const imageFile = document.getElementById('post-image').files[0];
+
+            if (!content.trim() && !imageFile) {
+                alert('Escribe algo o sube una imagen');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'create_post');
+            formData.append('contenido', content);
+            if (imageFile) {
+                formData.append('imagen', imageFile);
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('post-content').value = '';
+                    document.getElementById('post-image').value = '';
+                    document.getElementById('image-preview-container').style.display = 'none';
+                    document.getElementById('file-name').textContent = '';
+                    loadPosts();
+                } else {
+                    alert('Error al publicar: ' + (result.error || 'Desconocido'));
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('Error al publicar');
+            }
+        });
+    }
+
+    // Setup logout button
+    const logoutBtn = document.getElementById('nav-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
 });
 
 function showFeed() {
@@ -8,14 +92,19 @@ function showFeed() {
     document.getElementById('profile-section').style.display = 'none';
     document.getElementById('nav-home').classList.add('active');
     document.getElementById('nav-profile').classList.remove('active');
+    currentView = 'all';
+    loadPosts();
 }
 
 function showProfile() {
-    document.getElementById('main-feed').style.display = 'none';
-    document.getElementById('feed-container').style.display = 'none';
+    // Show create post box in profile too, as per user request
+    document.getElementById('main-feed').style.display = 'block';
+    document.getElementById('feed-container').style.display = 'block';
     document.getElementById('profile-section').style.display = 'block';
     document.getElementById('nav-home').classList.remove('active');
     document.getElementById('nav-profile').classList.add('active');
+    currentView = 'my';
+    loadPosts();
 }
 
 async function loadUserProfile() {
@@ -23,16 +112,40 @@ async function loadUserProfile() {
     formData.append('action', 'getUser');
 
     try {
-<<<<<<< HEAD
-        const response = await fetch('api.php', {
-=======
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('profile-name').textContent = data.data.nombre;
+            document.getElementById('profile-email').textContent = data.data.correo;
+            if (data.data.imagen) {
+                document.getElementById('profile-pic').src = data.data.imagen;
+                document.getElementById('modal-profile-pic').src = data.data.imagen;
+            }
+        } else {
+            console.error('Error loading profile:', data.message);
+            if (data.message === 'No autorizado') {
+                window.location.href = 'index.html';
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function loadPosts() {
+    const container = document.getElementById('feed-container');
+
+    try {
         const response = await fetch(`${API_URL}?action=get_posts&filter=${currentView}`);
         const text = await response.text();
 
         // Check if server returned raw PHP code
         if (text.trim().startsWith('<?php')) {
-            alert('ERROR: El servidor no está ejecutando PHP. \n\nAsegúrate de abrir este proyecto a través de localhost (XAMPP), no abriendo el archivo index.html directamente.');
-            container.innerHTML = '<p style="text-align:center; color:red;">Error: PHP no se está ejecutando.</p>';
+            alert('ERROR: PHP no ejecutado.');
             return;
         }
 
@@ -41,12 +154,12 @@ async function loadUserProfile() {
             posts = JSON.parse(text);
         } catch (e) {
             console.error('Invalid JSON:', text);
-            throw new Error('Respuesta del servidor no válida');
+            return;
         }
 
         container.innerHTML = '';
 
-        if (posts.length === 0) {
+        if (!Array.isArray(posts) || posts.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#666;">No hay publicaciones aún.</p>';
             return;
         }
@@ -84,9 +197,13 @@ function createPostElement(post) {
     const div = document.createElement('div');
     div.className = 'post';
 
+    // Escape content for safety
+    const safeContent = post.contenido.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const safeContentForEdit = post.contenido.replace(/'/g, "\\'");
+
     const deleteBtn = post.es_mio
         ? `
-            <button class="action-btn" onclick="editPost(${post.id}, '${post.contenido.replace(/'/g, "\\'")}')">✏️ Editar</button>
+            <button class="action-btn" onclick="editPost(${post.id}, '${safeContentForEdit}')">✏️ Editar</button>
             <button class="action-btn delete-btn" onclick="deletePost(${post.id})">🗑️ Eliminar</button>
           `
         : '';
@@ -96,17 +213,19 @@ function createPostElement(post) {
         : '';
 
     let commentsHtml = '';
-    post.comentarios.forEach(comment => {
-        commentsHtml += `
-            <div class="comment">
-                <img src="https://ui-avatars.com/api/?name=${comment.usuario_nombre}&background=random" class="comment-avatar">
-                <div class="comment-body">
-                    <div class="comment-author">${comment.usuario_nombre}</div>
-                    <div class="comment-text">${comment.contenido}</div>
+    if (post.comentarios) {
+        post.comentarios.forEach(comment => {
+            commentsHtml += `
+                <div class="comment">
+                    <img src="https://ui-avatars.com/api/?name=${comment.usuario_nombre}&background=random" class="comment-avatar">
+                    <div class="comment-body">
+                        <div class="comment-author">${comment.usuario_nombre}</div>
+                        <div class="comment-text">${comment.contenido.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                    </div>
                 </div>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 
     div.innerHTML = `
         <div class="post-header">
@@ -120,11 +239,11 @@ function createPostElement(post) {
             </div>
         </div>
         <div class="post-content" id="post-content-${post.id}">
-            ${post.contenido}
+            ${safeContent}
         </div>
         ${imageHtml}
         <div class="post-actions">
-            <button class="action-btn" onclick="toggleComments(${post.id})">💬 Comentarios (${post.comentarios.length})</button>
+            <button class="action-btn" onclick="toggleComments(${post.id})">💬 Comentarios (${post.comentarios ? post.comentarios.length : 0})</button>
         </div>
         <div class="comments-section" id="comments-${post.id}">
             <div class="comments-list">
@@ -141,20 +260,14 @@ function createPostElement(post) {
 
 function editPost(id, currentContent) {
     const contentDiv = document.getElementById(`post-content-${id}`);
-    const originalHtml = contentDiv.innerHTML;
 
     contentDiv.innerHTML = `
         <textarea id="edit-textarea-${id}" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">${currentContent}</textarea>
         <div style="margin-top: 5px; text-align: right;">
-            <button class="btn btn-secondary" onclick="cancelEdit(${id}, '${currentContent.replace(/'/g, "\\'")}')" style="padding: 4px 8px; font-size: 0.8rem;">Cancelar</button>
+            <button class="btn btn-secondary" onclick="loadPosts()" style="padding: 4px 8px; font-size: 0.8rem;">Cancelar</button>
             <button class="btn" onclick="saveEdit(${id})" style="padding: 4px 8px; font-size: 0.8rem;">Guardar</button>
         </div>
     `;
-}
-
-function cancelEdit(id, originalContent) {
-    const contentDiv = document.getElementById(`post-content-${id}`);
-    contentDiv.innerHTML = originalContent;
 }
 
 async function saveEdit(id) {
@@ -182,85 +295,44 @@ function toggleComments(postId) {
     section.classList.toggle('active');
 }
 
+async function addComment(event, postId) {
+    event.preventDefault();
+    const form = event.target;
+    const input = form.querySelector('input');
+    const content = input.value;
+
+    try {
+        const response = await fetch(`${API_URL}?action=add_comment`, {
+            method: 'POST',
+            body: JSON.stringify({ post_id: postId, contenido: content }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+        if (result.success) {
+            loadPosts(); // Reload to show new comment
+        } else {
+            alert('Error al comentar');
+        }
+    } catch (error) {
+        console.error('Error adding comment:', error);
+    }
+}
+
 async function deletePost(id) {
     if (!confirm('¿Estás seguro de eliminar esta publicación?')) return;
 
     try {
         const response = await fetch(`${API_URL}?action=delete_post`, {
->>>>>>> 01f4a77bc7b466f4a156fde1cd91fc5b87ed8791
             method: 'POST',
-            body: formData
+            body: JSON.stringify({ id: id }),
+            headers: { 'Content-Type': 'application/json' }
         });
         const data = await response.json();
 
         if (data.success) {
-            document.getElementById('profile-name').textContent = data.data.nombre;
-            document.getElementById('profile-email').textContent = data.data.correo;
-            if (data.data.imagen) {
-                document.getElementById('profile-pic').src = data.data.imagen;
-                document.getElementById('modal-profile-pic').src = data.data.imagen;
-            }
+            loadPosts();
         } else {
-            console.error('Error loading profile:', data.message);
-            if (data.message === 'No autorizado') {
-                window.location.href = 'index.html';
-            }
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-function openPhotoModal() {
-    document.getElementById('photo-modal').style.display = 'block';
-}
-
-function closePhotoModal() {
-    document.getElementById('photo-modal').style.display = 'none';
-}
-document.addEventListener('DOMContentLoaded', () => {
-    loadUserProfile();
-});
-
-function showFeed() {
-    document.getElementById('main-feed').style.display = 'block';
-    document.getElementById('feed-container').style.display = 'block';
-    document.getElementById('profile-section').style.display = 'none';
-    document.getElementById('nav-home').classList.add('active');
-    document.getElementById('nav-profile').classList.remove('active');
-}
-
-function showProfile() {
-    document.getElementById('main-feed').style.display = 'none';
-    document.getElementById('feed-container').style.display = 'none';
-    document.getElementById('profile-section').style.display = 'block';
-    document.getElementById('nav-home').classList.remove('active');
-    document.getElementById('nav-profile').classList.add('active');
-}
-
-async function loadUserProfile() {
-    const formData = new FormData();
-    formData.append('action', 'getUser');
-
-    try {
-        const response = await fetch('api.php', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            document.getElementById('profile-name').textContent = data.data.nombre;
-            document.getElementById('profile-email').textContent = data.data.correo;
-            if (data.data.imagen) {
-                document.getElementById('profile-pic').src = data.data.imagen;
-                document.getElementById('modal-profile-pic').src = data.data.imagen;
-            }
-        } else {
-            console.error('Error loading profile:', data.message);
-            if (data.message === 'No autorizado') {
-                window.location.href = 'index.html';
-            }
+            alert('Error al eliminar');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -293,7 +365,7 @@ async function handleProfileUpload(input) {
             formData.append('imagen', base64Image);
 
             try {
-                const response = await fetch('api.php', {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     body: formData
                 });
@@ -324,26 +396,25 @@ async function logout() {
             method: 'POST',
             body: formData
         });
-        const data = await response.json();
-
-        if (data.success) {
-            window.location.href = 'index.html';
-        } else {
-            alert('Error al cerrar sesión');
-        }
+        window.location.href = 'index.html';
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cerrar sesión');
+        window.location.href = 'index.html'; // Fallback
     }
 }
 
-// Expose functions to global scope to ensure HTML onclick works
+// Expose functions to global scope
 window.showFeed = showFeed;
 window.showProfile = showProfile;
 window.openPhotoModal = openPhotoModal;
 window.closePhotoModal = closePhotoModal;
 window.handleProfileUpload = handleProfileUpload;
 window.logout = logout;
+window.editPost = editPost;
+window.saveEdit = saveEdit;
+window.deletePost = deletePost;
+window.toggleComments = toggleComments;
+window.addComment = addComment;
 
 // Close modal if clicked outside
 window.onclick = function (event) {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Social</title>
     <link rel="stylesheet" href="estilos.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
             <nav>
                 <a onclick="showFeed()" id="nav-home" class="active">Inicio</a>
                 <a onclick="showProfile()" id="nav-profile">Mi Perfil</a>
-                <a onclick="logout()" id="nav-logout" style="color: #EF4444; cursor: pointer;">Cerrar Sesión</a>
+                <a id="nav-logout" style="color: #EF4444; cursor: pointer;">Cerrar Sesión</a>
             </nav>
         </div>
     </header>
@@ -39,9 +39,14 @@
                         </div>
                     </div>
                     <h2 id="profile-name">Cargando...</h2>
-                    <p id="profile-email">Cargando...</p>
+                    <p id="profile-bio" style="color: #6B7280; margin: 0.5rem 0;">Sin biografía</p>
+                    <p id="profile-email" style="display:none;">Cargando...</p>
                 </div>
+                <button class="btn btn-secondary"
+                    style="width: 100%; margin-top: 1rem; border-radius: 6px; padding: 8px;"
+                    onclick="alert('Función de editar perfil próximamente')">Editar Perfil</button>
             </div>
+            <h3 style="margin-bottom: 1rem; color: #1F2937;">Mis Publicaciones</h3>
         </div>
 
         <!-- Create Post Section -->
@@ -90,7 +95,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 
 </html>
