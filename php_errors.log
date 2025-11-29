@@ -38,3 +38,5 @@
 =======
 >>>>>>> f3144586319f0361215d1b3c6611a335a035c671
 >>>>>>> 3fc8c372dc14737987fa06f9f9e921de480b7a18
+[29-Nov-2025 20:42:17 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 86
+[29-Nov-2025 20:42:33 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 69
