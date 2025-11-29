@@ -17,3 +17,5 @@
 >>>>>>> 09083a5c640f85c2a5f38144da91563e869fcc14
 [29-Nov-2025 20:12:14 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\red\red-social-basica\auth.php on line 86
 [29-Nov-2025 20:12:43 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\red\red-social-basica\auth.php on line 69
+[29-Nov-2025 20:28:47 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\red\red-social-basica\auth.php on line 86
+[29-Nov-2025 20:35:20 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\red\red-social-basica\auth.php on line 69
