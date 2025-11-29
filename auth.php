@@ -11,6 +11,7 @@ ini_set('log_errors', 1);
 header('Content-Type: application/json');
 session_start();
 
+
 // Incluir conexión (cualquier output aquí será capturado por ob_start)
 include 'conexion.php';
 

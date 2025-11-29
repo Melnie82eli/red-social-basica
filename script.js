@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserProfile();
     loadPosts();
 
+
+    
     // Setup image preview
     const imageInput = document.getElementById('post-image');
     if (imageInput) {

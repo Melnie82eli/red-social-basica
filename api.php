@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
 $current_user_id = $_SESSION['user_id'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
