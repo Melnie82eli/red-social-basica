@@ -1,0 +1,7 @@
+[29-Nov-2025 19:28:40 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 38
+[29-Nov-2025 19:28:57 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 69
+[29-Nov-2025 19:33:04 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 69
+[29-Nov-2025 19:43:59 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 86
+[29-Nov-2025 19:44:26 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 69
+[29-Nov-2025 19:44:38 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 86
+[29-Nov-2025 19:45:52 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp\htdocs\INICIOYperfil\red-social-basica\auth.php on line 69
